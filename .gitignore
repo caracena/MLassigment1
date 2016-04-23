@@ -1,5 +1,7 @@
 __pycache__
-
+.ipynb_checkpoints
+training_data_sample.csv
+training_labels_sample.csv
 .idea
 assignment1_2016S1
 assignment1_2016S1.zip
