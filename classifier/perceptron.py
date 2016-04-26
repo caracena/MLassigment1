@@ -5,8 +5,7 @@ def perceptron_train(X_train, y_train, iterations, list_classes):
     m, n = X_train.shape
     classes = len(list_classes)
     w = np.zeros((classes, n), dtype='f')
-    v = np.zeros((iterations*m, classes, n), dtype='f')
-    cont = 0
+    v = np.zeros((classes, n), dtype='f')
     for i in range(iterations):
         print('starting iteration {}'.format(i))
         for j in range(m):
@@ -18,9 +17,9 @@ def perceptron_train(X_train, y_train, iterations, list_classes):
                 index_pred = get_index(y_p, list_classes)
                 w[index_train] += X_train[j]
                 w[index_pred] -= X_train[j]
-            v[cont] = w
-            cont += 1
-    return np.mean(v, axis=0)
+            v += w
+
+    return v/(iterations*m)
 
 def perceptron_test(X_test, w_avg, list_classes):
 
