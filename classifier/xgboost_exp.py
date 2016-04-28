@@ -16,13 +16,13 @@ def main():
     list_classes.sort()
     y_train = label_to_index(y_train,list_classes)
     m, n = X_train.shape
-    k = 10
+    k = 3
     logging.info("--- %s seconds ---" % (time.time() - start_time))
 
     models = []
-    eta = [0.1, 0.4, 0.7]
-    num_round = [90, 100, 110]
-    colsample_bytree = [0.3, 0.5]
+    eta = [0.7]
+    num_round = [120]
+    colsample_bytree = [0.5]
     param = [(i, j, k) for i in eta for j in num_round for k in colsample_bytree]
 
     for p in param:
@@ -50,7 +50,7 @@ def main():
             param['max_depth'] = 6
             param['colsample_bytree'] = p[2]
             param['silent'] = 1
-            param['nthread'] = 7
+            param['nthread'] = 8
             param['num_class'] = 30
 
             watchlist = [(xg_train, 'train'), (xg_test, 'test')]
@@ -66,9 +66,6 @@ def main():
         results = get_precision_recall_fscore_overall(results, k)
 
         logging.info(results)
-        logging.info("--- %s seconds ---" % (time.time() - start_time))
-
-        logging.info(get_precision_recall_fscore_overall(results, k))
         logging.info("--- %s seconds ---" % (time.time() - start_time))
 
     logging.info('Finished')
