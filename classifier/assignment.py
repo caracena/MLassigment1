@@ -1,5 +1,6 @@
-import csv, random
-from classifier.perceptron import *
+import csv, random, statistics as stat
+import numpy as np
+from classifier.perceptron import perceptron_test, perceptron_train
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -7,8 +8,86 @@ from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier
 import logging, time
 import os.path
+
+def main():
+    logging.basicConfig(filename='resultsperceptron.log', filemode='w', level=logging.INFO)
+    logging.info('Started')
+    ## load data
+
+    start_time = time.time()
+    logging.info('Loading data')
+    X_train, y_train, X_test = load_data()
+    list_classes = list(set(y_train))
+    list_classes.sort()
+    m, n = X_train.shape
+    k = 10
+    logging.info("--- %s seconds ---" % (time.time() - start_time))
+    thresholds = [0.001, 0.005, 0.01, 0.02, 0.05, 0.07, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]
+    for thres in thresholds:
+        X_train = make_binary(X_train, thres)
+        start_time = time.time()
+        logging.info('perceptron algorithm threshold {}'.format(thres))
+        print('perceptron algorithm threshold {}'.format(thres))
+        iterations = 3
+        results = []
+        c_cross = 0
+        for training, validation in cross_validation(k, m):
+            print('cross validation iteration {}'.format(c_cross))
+            y_train_cross = [y_train[y] for y in training]
+            y_val_cross = [y_train[y] for y in validation]
+            w_avg = perceptron_train(X_train[training], y_train_cross, iterations, list_classes)
+            y_pred = perceptron_test(X_train[validation], w_avg, list_classes)
+            res = precision_recall_fscore_support(y_val_cross, y_pred, average='micro')
+            results.append(res)
+            c_cross += 1
+
+        logging.info(get_precision_recall_fscore_overall(results, k))
+        logging.info("--- %s seconds ---" % (time.time() - start_time))
+
+    logging.info('Finished')
+
+def main():
+    logging.basicConfig(filename='resultsBST.log', filemode='w', level=logging.INFO)
+    logging.info('Started')
+    ## load data
+
+    start_time = time.time()
+    logging.info('Loading data')
+    X_train, y_train, X_test = load_data()
+    list_classes = list(set(y_train))
+    list_classes.sort()
+    m, n = X_train.shape
+    k = 10
+    logging.info("--- %s seconds ---" % (time.time() - start_time))
+
+    models = []
+    learning_rate = [0.1, 0.5, 1.0]
+    n_estimators = [100, 150, 200]
+    max_depth = [1, 3, 5]
+    param = [(i,j,k) for i in learning_rate for j in n_estimators for k in max_depth]
+    for p in param:
+        models.append(GradientBoostingClassifier(n_estimators=p[1], learning_rate=p[0], max_depth=p[2]))
+
+    i = 0
+    for model in models:
+        start_time = time.time()
+        logging.info('GradientBoostingClassifier with {} estimators, {} of learning rate, '
+                     'and max depth {}'.format(param[i][1],param[i][0], param[i][2]))
+        print('GradientBoostingClassifier with {} estimators, {} of learning rate, '
+                     'and max depth {}'.format(param[i][1], param[i][0], param[i][2]))
+        results = get_results_algorithms(X_train, y_train, m, k, model)
+        logging.info(results)
+        logging.info("--- %s seconds ---" % (time.time() - start_time))
+        i += 1
+
+    logging.info(get_precision_recall_fscore_overall(results, k))
+    logging.info("--- %s seconds ---" % (time.time() - start_time))
+
+
+    logging.info('Finished')
 
 def main():
     logging.basicConfig(filename='results.log', filemode='w', level=logging.INFO)
@@ -148,12 +227,13 @@ def cross_validation(k, m):
         yield training, validation
 
 def get_precision_recall_fscore_overall(results, k):
-    precision, recall, fscore = 0, 0, 0
+    precision, recall, fscore = [], [], []
     for res in results:
-        precision += res[0]
-        recall += res[1]
-        fscore += res[2]
-    return precision/k, recall/k, fscore/k
+        precision.append(res[0])
+        recall.append(res[1])
+        fscore.append(res[2])
+    return stat.mean(precision), stat.stdev(precision),stat.mean(recall), \
+           stat.stdev(recall), stat.mean(fscore), stat.stdev(fscore)
 
 def get_results_algorithms(X_train, y_train, m, k, model):
     results = []
@@ -170,6 +250,8 @@ def get_results_algorithms(X_train, y_train, m, k, model):
 
     return get_precision_recall_fscore_overall(results, k)
 
+def make_binary(X_train, t):
+    return X_train >= t
 
 if __name__ == "__main__":
     main()
