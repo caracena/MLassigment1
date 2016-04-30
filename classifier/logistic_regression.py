@@ -18,36 +18,37 @@ def main():
     list_classes = list(set(y_train))
     list_classes.sort()
     logging.info("--- %s seconds ---" % (time.time() - start_time))
-
     k = 10
-    results = []
-    c_cross = 0
-    logging.info('Logistic Regression')
-    print('Logistic Regression')
-    start_time = time.time()
-    for training, validation in cross_validation(k, m):
-        print('cross validation iteration {}'.format(c_cross))
-        y_train_cross = [y_train[y] for y in training]
-        y_val_cross = [y_train[y] for y in validation]
-        all_theta = logistic_train(X_train[training], y_train_cross, list_classes)
-        y_pred = logistic_test(X_train[validation], all_theta, list_classes)
-        res = precision_recall_fscore_support(y_val_cross, y_pred, average='micro')
-        results.append(res)
-        c_cross += 1
+    ls = [0.5]
 
-    logging.info(get_precision_recall_fscore_overall(results, k))
-    logging.info("--- %s seconds ---" % (time.time() - start_time))
+    for l in ls:
+        results = []
+        c_cross = 0
+        logging.info('Logistic Regression with lambda {}'.format(l))
+        print('Logistic Regression with lambda {}'.format(l))
+        start_time = time.time()
+        for training, validation in cross_validation(k, m):
+            print('cross validation iteration {}'.format(c_cross))
+            y_train_cross = [y_train[y] for y in training]
+            y_val_cross = [y_train[y] for y in validation]
+            all_theta = logistic_train(X_train[training], y_train_cross, list_classes, l)
+            y_pred = logistic_test(X_train[validation], all_theta, list_classes)
+            res = precision_recall_fscore_support(y_val_cross, y_pred, average='micro')
+            results.append(res)
+            c_cross += 1
 
-def logistic_train(X, y, list_classes):
+        logging.info(get_precision_recall_fscore_overall(results, k))
+        logging.info("--- %s seconds ---" % (time.time() - start_time))
+
+def logistic_train(X, y, list_classes, l):
     classes = len(list_classes)
     X = add_theta0(X)
-    num_cores = multiprocessing.cpu_count()
-    results = Parallel(n_jobs=num_cores)(delayed(logistic_train_one_class)(X, y, list_classes,c) for c in range(classes))
+    num_cores = multiprocessing.cpu_count() -1
+    results = Parallel(n_jobs=num_cores)(delayed(logistic_train_one_class)(X, y, list_classes, l,c) for c in range(classes))
     return np.asarray(results)
 
-def logistic_train_one_class(X, y, list_classes, c):
+def logistic_train_one_class(X, y, list_classes,l ,c):
     m, n = X.shape
-    l = 1
     initial_theta = np.zeros(n)
     y_class = get_y_class(y, list_classes, c)
 
