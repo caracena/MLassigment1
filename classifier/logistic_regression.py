@@ -73,7 +73,7 @@ def logistic_test(X, all_theta, list_classes):
 def cost_function_reg(theta, X, y, l):
     m, n = X.shape
     J = (1/m) * (-y.T.dot(np.log(sigmoid(X.dot(theta)))) - (1-y.T).dot(np.log(1 - sigmoid(X.dot(theta))))) + \
-        (l/m)* 0.5 * theta[1:].T * theta[1:]
+        (l/m)* 0.5 * theta[1:].T.dot(theta[1:])
     return J
 
 def grad_function_reg(theta, X, y, l):
