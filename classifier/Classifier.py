@@ -81,7 +81,7 @@ def getAccuracy(testSet, predictions):
     return (correct/float(len(testSet))) * 100.0
 
 def main():
-    filename = '../diabetes.csv'
+    filename = '../diabetes_full.csv'
     splitRatio = 0.67
     dataset = loadCsv(filename)
     trainingSet, testSet = splitDataset(dataset, splitRatio)
