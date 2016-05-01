@@ -1,96 +1,102 @@
-import csv
-import random
 import numpy as np
-import math
-
-def loadCsv(filename):
-    lines = csv.reader(open(filename, "rt"))
-    dataset = list(lines)
-
-    for i in range(len(dataset)):
-        dataset[i] = [float(x) for x in dataset[i]]
-
-    return dataset
-
-def splitDataset(dataset, splitRatio):
-    trainSize = int(len(dataset) * splitRatio)
-    trainSet = []
-    copy = list(dataset)
-    while len(trainSet) < trainSize:
-        index = random.randrange(len(copy))
-        trainSet.append(copy.pop(index))
-    return [trainSet, copy]
-
-def separateByClass(dataset):
-    separated = {}
-    for i in range(len(dataset)):
-        vector = dataset[i]
-        if (vector[-1] not in separated):
-            separated[vector[-1]] = []
-        separated[vector[-1]].append(vector)
-    return separated
-
-def summarize(dataset):
-    summaries = [(np.mean(attribute), np.std(attribute)) for attribute in zip(*dataset)]
-    del summaries[-1] # removing the class
-    return summaries
-
-def summarizeByClass(dataset):
-    separated = separateByClass(dataset)
-    summaries = {}
-    for classValue, instances in separated.items():
-        summaries[classValue] = summarize(instances)
-    return summaries
+import codecs
+import pandas as pd
+import sklearn.cross_validation as cross_validation
 
 
-def calculateProbability(x, mean, stdev):
-    exponent = math.exp(-(math.pow(x-mean,2)/(2*math.pow(stdev,2))))
-    return (1 / (math.sqrt(2*math.pi) * stdev)) * exponent
 
-def calculateClassProbabilities(summaries, inputVector):
-    probabilities = {}
-    for classValue, classSummaries in summaries.items():
-        probabilities[classValue] = 1
-        for i in range(len(classSummaries)):
-            mean, stdev = classSummaries[i]
-            x = inputVector[i]
-            probabilities[classValue] *= calculateProbability(x, mean, stdev)
-    return probabilities
+class MultinomialNaiveBayes():
 
-def predict(summaries, inputVector):
-    probabilities = calculateClassProbabilities(summaries, inputVector)
-    bestLabel, bestProb = None, -1
-    for classValue, probability in probabilities.items():
-        if bestLabel is None or probability > bestProb:
-            bestProb = probability
-            bestLabel = classValue
-    return bestLabel
+    def __init__(self):
+        self.trained = False
+        self.likelihood =  0
+        self.prior = 0
+        self.smooth = False
+        self.smooth_param = 1
+        
+    def train(self, x, y):
+        # n_docs = no. of documents
+        # n_words = no. of unique words    
+        n_docs, n_words = x.shape
+        
+        # classes = a list of possible classes
+        classes = np.unique(y)
 
-def getPredictions(summaries, testSet):
-    predictions = []
-    for i in range(len(testSet)):
-        result = predict(summaries, testSet[i])
-        predictions.append(result)
-    return predictions
+        # words = list of possible words
+        words = np.unique(x.columns.values)
+        
+        # n_classes = no. of classes
+        n_classes = np.unique(y).shape[0]
 
-def getAccuracy(testSet, predictions):
-    correct = 0
-    for x in range(len(testSet)):
-        if testSet[x][-1] == predictions[x]:
-            correct += 1
-    return (correct/float(len(testSet))) * 100.0
 
-def main():
-    filename = '../diabetes_full.csv'
-    splitRatio = 0.67
-    dataset = loadCsv(filename)
-    trainingSet, testSet = splitDataset(dataset, splitRatio)
-    print('Split {0} rows into train={1} and test={2} rows'.format(len(dataset), len(trainingSet), len(testSet)))
-    # prepare model
-    summaries = summarizeByClass(trainingSet)
-    # test model
-    predictions = getPredictions(summaries, testSet)
-    accuracy = getAccuracy(testSet, predictions)
-    print('Accuracy: {0}%'.format(accuracy))
+        # TODO: This is where you have to write your code!
+        # You need to compute the values of the prior and likelihood parameters
+        # and place them in the variables called "prior" and "likelihood".
+        # Examples:
+            # prior[0] is the prior probability of a document being of class 0
+            # likelihood[4, 0] is the likelihood of the fifth(*) feature being 
+            # active, given that the document is of class 0
+            # (*) recall that Python starts indices at 0, so an index of 4 
+            # corresponds to the fifth feature!
+        
+        ###########################
+        # Calculating the Prior Probabilities for the classes
+        # pos_count and neg_count gives the count for each word for a particular class
+        class_word_count = {}
+        word_count = {}
+        class_count = {}
+        prior = {}
+        pos_count,neg_count = np.zeros(n_words),np.zeros(n_words)
+        # examining each word and fining the above mentioned values
+        cwLength = x.shape[1]
+        cdLength = x.shape[0]
+        for c_w in range(cwLength):
+            word_count[c_w] = 0
+            for c_d in range(cdLength):
+                clazz = y[c_d][0]
+                value = x.iloc[c_d][c_w]
 
-main()
+                if clazz in class_word_count :
+                    class_word_count[clazz][c_w] += value
+                else:
+                    class_word_count[clazz] = np.zeros(n_words)
+
+                if clazz in class_count:
+                    class_count[clazz] += 1
+                else:
+                    class_count[clazz] = 0
+
+                word_count[c_w] += value
+
+
+
+        # Finding likelihood for each word with respective to a class
+        for c_w in range (cwLength):
+            for clazz in class_count:
+                numerator = class_word_count[clazz][c_w]
+                denominator = class_word_count[clazz].sum()
+                class_word_count[clazz][c_w] = np.nan_to_num(np.log(numerator +1 / denominator + n_words ))
+
+        ###########################
+        self.likelihood = class_count
+        self.prior = prior
+        self.trained = True
+        return params
+
+if __name__ == '__main__':
+    X = pd.read_csv('../zoo.csv', header=None)
+    y = pd.read_csv('../target.csv', header=None)
+    X_scaled = X.applymap(lambda x: 1 if x > 0 else 0)
+    nb = MultinomialNaiveBayes()
+
+    X_train, X_test, y_train, y_test = cross_validation.train_test_split(X_scaled, y, test_size=0.33, random_state=42)
+
+    params = nb.train(X_train, y_train.as_matrix())
+
+    predict_train = nb.test(X_train, params)
+    eval_train = nb.evaluate(predict_train, y_train)
+
+    predict_test = nb.test(X_test, params)
+    eval_test = nb.evaluate(predict_test, y_test)
+
+    print("Accuracy on training set: {0}, on test set: {1}".format(eval_train, eval_test))
