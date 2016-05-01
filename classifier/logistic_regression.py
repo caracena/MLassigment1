@@ -18,8 +18,18 @@ def main():
     list_classes = list(set(y_train))
     list_classes.sort()
     logging.info("--- %s seconds ---" % (time.time() - start_time))
+
+    start_time = time.time()
+    logging.info('Reduce matrix')
+    columns = (X_train != 0).sum(0)
+    X_train = X_train[:,columns<500]
+    m, n = X_train.shape
+    logging.info('X_train shape {},{}'.format(m,n))
+    logging.info("--- %s seconds ---" % (time.time() - start_time))
+
+
     k = 10
-    ls = [0.5]
+    ls = [0.3]
 
     for l in ls:
         results = []
