@@ -1,5 +1,4 @@
 import numpy as np
-import codecs
 import pandas as pd
 import sklearn.cross_validation as cross_validation
 
@@ -9,35 +8,43 @@ class MultinomialNaiveBayes():
 
     def __init__(self):
         self.trained = False
-        self.likelihood =  0
+        self.likelihood = 0
         self.prior = 0
-        self.smooth = False
-        self.smooth_param = 1
-        
-    def train(self, x, y):
+        self.classes = []
+
+    def score(self,result,expected):
+        size = len(result)
+        count = 0
+        for index in range(size):
+            result_class = result[index]
+            expected_class = expected[index]
+            if result_class == expected_class:
+                count += 1
+        return count/size
+
+    def predict(self,y):
+        n_docs,n_words = y.shape
+        class_prob = {}
+        result = []
+        for doc in range(n_docs):
+            indices = np.where(y[doc] > 0)[0]
+            for clazz in self.classes:
+                class_prior = self.prior[clazz]
+                class_prob[clazz] = class_prior
+                joint_prob = self.likelihood[clazz][indices]
+                class_prob[clazz] += joint_prob.sum()
+
+            selected_class = max(class_prob.keys(), key=lambda k: class_prob[k])
+            result.append(selected_class)
+        return result
+
+    def fit(self, x, y):
         # n_docs = no. of documents
         # n_words = no. of unique words    
         n_docs, n_words = x.shape
         
         # classes = a list of possible classes
-        classes = np.unique(y)
-
-        # words = list of possible words
-        words = np.unique(x.columns.values)
-        
-        # n_classes = no. of classes
-        n_classes = np.unique(y).shape[0]
-
-
-        # TODO: This is where you have to write your code!
-        # You need to compute the values of the prior and likelihood parameters
-        # and place them in the variables called "prior" and "likelihood".
-        # Examples:
-            # prior[0] is the prior probability of a document being of class 0
-            # likelihood[4, 0] is the likelihood of the fifth(*) feature being 
-            # active, given that the document is of class 0
-            # (*) recall that Python starts indices at 0, so an index of 4 
-            # corresponds to the fifth feature!
+        self.classes = np.unique(y)
         
         ###########################
         # Calculating the Prior Probabilities for the classes
@@ -45,58 +52,60 @@ class MultinomialNaiveBayes():
         class_word_count = {}
         word_count = {}
         class_count = {}
-        prior = {}
-        pos_count,neg_count = np.zeros(n_words),np.zeros(n_words)
+        class_prior = {}
+
         # examining each word and fining the above mentioned values
         cwLength = x.shape[1]
         cdLength = x.shape[0]
+
+        for doc in range(n_docs):
+            clazz = y[doc][0]
+            if clazz in class_count:
+                class_count[clazz] += 1
+            else:
+                class_count[clazz] = 1
+
         for c_w in range(cwLength):
             word_count[c_w] = 0
             for c_d in range(cdLength):
                 clazz = y[c_d][0]
-                value = x.iloc[c_d][c_w]
-
+                value = x[c_d][c_w]
+                #Finding the value of that word for a particular class
                 if clazz in class_word_count :
                     class_word_count[clazz][c_w] += value
                 else:
                     class_word_count[clazz] = np.zeros(n_words)
+                    class_word_count[clazz][c_w] += value
 
-                if clazz in class_count:
-                    class_count[clazz] += 1
-                else:
-                    class_count[clazz] = 0
+                word_count[c_w] += value # Counting how many times that word appears in all documents
 
-                word_count[c_w] += value
-
-
+        # Finding the Prior Probability for all classes
 
         # Finding likelihood for each word with respective to a class
-        for c_w in range (cwLength):
-            for clazz in class_count:
+        for c_w in range(cwLength):
+            for clazz in self.classes:
                 numerator = class_word_count[clazz][c_w]
                 denominator = class_word_count[clazz].sum()
-                class_word_count[clazz][c_w] = np.nan_to_num(np.log(numerator +1 / denominator + n_words ))
+                joint = (numerator + 1) / (denominator + n_words)
+                class_prior[clazz] = np.log(class_count[clazz] / n_docs)
+                class_word_count[clazz][c_w] = np.log(joint)
 
         ###########################
-        self.likelihood = class_count
-        self.prior = prior
+        self.likelihood = class_word_count
+        self.prior = class_prior
         self.trained = True
-        return params
 
 if __name__ == '__main__':
-    X = pd.read_csv('../zoo.csv', header=None)
-    y = pd.read_csv('../target.csv', header=None)
-    X_scaled = X.applymap(lambda x: 1 if x > 0 else 0)
+    X = pd.read_csv('../assignment1_2016S1/training_data.csv', header=None).sort_values(by=0).reset_index().ix[:100, 2:]
+    y = pd.read_csv('../assignment1_2016S1/training_labels.csv', header=None).sort_values(by=0).reset_index().ix[:100, 2:]
+
     nb = MultinomialNaiveBayes()
 
-    X_train, X_test, y_train, y_test = cross_validation.train_test_split(X_scaled, y, test_size=0.33, random_state=42)
+    X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y, test_size=0.33, random_state=42)
 
-    params = nb.train(X_train, y_train.as_matrix())
+    nb.fit(X_train.as_matrix(), y_train.as_matrix())
 
-    predict_train = nb.test(X_train, params)
-    eval_train = nb.evaluate(predict_train, y_train)
+    result = nb.predict(X_test.as_matrix())
 
-    predict_test = nb.test(X_test, params)
-    eval_test = nb.evaluate(predict_test, y_test)
 
-    print("Accuracy on training set: {0}, on test set: {1}".format(eval_train, eval_test))
+    print("Accuracy: {0}%".format(nb.score(result,y_test.as_matrix())*100))
