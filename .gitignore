@@ -10,3 +10,4 @@ assignment1_2016S1.zip
 *.blg
 *.log
 *.synctex.gz
+.DS_Store
