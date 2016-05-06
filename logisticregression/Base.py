@@ -1,7 +1,9 @@
 import os.path
 import csv, random, statistics as stat
 import numpy as np
-
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 
 class Base:
 
@@ -42,6 +44,19 @@ class Base:
 
         return X_train, y_train, X_test
 
+    def dimension_reduction(self, X_train, option, value):
+        if option == 'common':
+            if not value:
+                value = 500
+            columns = (X_train != 0).sum(0)
+            X_train = X_train[:, columns < value]
+        elif option == 'pca':
+            if not value:
+                value = 0.95
+            pca = PCA(n_components=value)
+            X_train = pca.fit_transform(X_train)
+        return X_train
+
     def extract_data(self,filename):
 
         content = []
@@ -76,3 +91,30 @@ class Base:
             fscore.append(res[2])
         return stat.mean(precision), stat.stdev(precision), stat.mean(recall), \
                stat.stdev(recall), stat.mean(fscore), stat.stdev(fscore)
+
+    def plot_confusion_matrix(self, y_test, y_pred, list_classes):
+        cm = confusion_matrix(y_test, y_pred)
+        plt.figure()
+        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title('Confusion matrix')
+        plt.colorbar()
+        tick_marks = np.arange(len(list_classes))
+        plt.xticks(tick_marks, list_classes, rotation=90)
+        plt.yticks(tick_marks, list_classes)
+        plt.tight_layout()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+        plt.grid(True)
+        width, height = len(list_classes), len(list_classes)
+        for x in range(width):
+            for y in range(height):
+                if cm[x][y] > 100:
+                    color = 'white'
+                else:
+                    color = 'black'
+                if cm[x][y] > 0:
+                    plt.annotate(str(cm[x][y]), xy=(y, x),
+                                 horizontalalignment='center',
+                                 verticalalignment='center',
+                                 color=color)
+        plt.show()
