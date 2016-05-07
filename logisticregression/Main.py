@@ -6,14 +6,15 @@ from sklearn.metrics import precision_recall_fscore_support
 def main():
 
     ## load positional parameters
-    ## TODO(caracena) fix default args
     parser = argparse.ArgumentParser()
-    parser.add_argument("l", type=float, help="lambda parameter for regularisation [0 - Inf]", default=0.3)
+    parser.add_argument("l", type=float, help="lambda parameter for regularisation [0 - Inf]", default=0.3,
+                        nargs='?',const=0.3)
     parser.add_argument("p", help="process to be done (cross, test or predict)",
-                        choices=['cross', 'test', 'predict'] ,default='cross')
+                        choices=['cross', 'test', 'predict'] ,default='cross', const=0.3, nargs='?')
     parser.add_argument("r", help="type of reduction to be applied",
-                        choices=['pca', 'none', 'common'], default='none')
-    parser.add_argument("--value_reduction", type = float, help="value of dimensionality reduction", default=0)
+                        choices=['pca', 'none', 'common'], default='none', const='none', nargs='?')
+    parser.add_argument("--value_reduction", type = float, help="value of dimensionality reduction",
+                        default=0, const=0, nargs='?')
     args = parser.parse_args()
 
     ## append results to resultslogistic.log
@@ -29,18 +30,17 @@ def main():
     ## load data
     start_time = time.time()
     logging.info('Loading data')
-    X_train, y_train, X_test = b.load_data()
+    X_train, y_train, X_test, test_names = b.load_data()
     logging.info("--- %s seconds ---" % (time.time() - start_time))
 
 
-    if args.reduction != 'none':
+    if args.r != 'none':
         ## dimensionality reduction
         start_time = time.time()
-        logging.info('Reduce matrix using {}'.format(args.reduction))
-        X_train = b.dimension_reduction(X_train, args.reduction, args.reduction_reduction)
+        logging.info('Reduce matrix using {}'.format(args.r))
+        X_train = b.dimension_reduction(X_train, args.reduction, args.value_reduction)
         if args.p == 'predict':
-            X_test = b.dimension_reduction(X_test, args.reduction, args.reduction_reduction)
-        m, n = X_train.shape
+            X_test = b.dimension_reduction(X_test, args.reduction, args.value_reduction)
         logging.info('X_train shape {},{}'.format(m, n))
         logging.info("--- %s seconds ---" % (time.time() - start_time))
 
@@ -48,6 +48,7 @@ def main():
 
     ## get lambda
     lmda = args.l
+    m, n = X_train.shape
 
     ## cross validation process
     if args.p == 'cross':
@@ -115,9 +116,8 @@ def main():
         ## train and predict in testing data
         clf.fit(X_train, y_train, lmda)
         y_pred = clf.predict(X_test)
-
-        ##TODO(caracena): save file pre-dicted labels.csv with same order than test_data.csv
-
+        results = zip(test_names,y_pred)
+        b.save_data(results,'test_data.csv')
         logging.info("--- %s seconds ---" % (time.time() - start_time))
 
 

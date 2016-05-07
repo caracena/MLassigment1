@@ -14,35 +14,11 @@ class Base:
 
     def load_data(self):
 
-        if os.path.isfile('../data/training_data_order.csv'):
-            content = self.extract_data('../data/training_data_order.csv')
-        else:
-            content = self.extract_data(self.dataset_name)
-            content.sort(key=lambda x: x[0])
-            self.save_data(content, '../data/training_data_order.csv')
+        X_train = self.extract_data(self.dataset_name)
+        y_train = self.extract_data(self.target_name, array = False)
+        X_test, test_names = self.extract_data(self.test_name, sort = False, names = True)
 
-        X_train = [x[1:] for x in content]
-        X_train = np.asarray(X_train, dtype='f')
-
-        if os.path.isfile('../data/training_labels_order.csv'):
-            content = self.extract_data('../data/training_labels_order.csv')
-        else:
-            content = self.extract_data(self.target_name)
-            content.sort(key=lambda x: x[0])
-            self.save_data(content, '../data/training_labels_order.csv')
-        y_train = [y[1] for y in content]
-
-        if os.path.isfile('../data/test_data_order.csv'):
-            content = self.extract_data('../data/test_data_order.csv')
-        else:
-            content = self.extract_data(self.test_name)
-            content.sort(key=lambda x: x[0])
-            self.save_data(content, '../data/test_data_order.csv')
-
-        X_test = [x[1:] for x in content]
-        X_test = np.asarray(X_test, dtype='f')
-
-        return X_train, y_train, X_test
+        return X_train, y_train, X_test, test_names
 
     def dimension_reduction(self, X_train, option, value):
         if option == 'common':
@@ -57,14 +33,27 @@ class Base:
             X_train = pca.fit_transform(X_train)
         return X_train
 
-    def extract_data(self,filename):
-
+    def extract_data(self,filename, sort= True, array = True, names = False):
         content = []
         with open(filename) as f:
             reader = csv.reader(f)
             for row in reader:
                 content.append(row)
-        return content
+
+            if sort: content.sort(key=lambda x: x[0])
+
+            if array:
+                content_array = [x[1:] for x in content]
+                content_array = np.asarray(content_array, dtype='f')
+            else:
+                content_array = [y[1] for y in content]
+
+            if names:
+                names_list = [n[0] for n in content]
+                return content_array, names_list
+
+        return content_array
+
 
     def save_data(self,content, filename):
         with open(filename, 'w') as csvfile:
