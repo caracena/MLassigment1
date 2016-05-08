@@ -39,6 +39,7 @@ def main():
         start_time = time.time()
         logging.info('Reduce matrix using {}'.format(args.r))
         X_train = b.dimension_reduction(X_train, args.reduction, args.value_reduction)
+        m, n = X_train.shape
         if args.p == 'predict':
             X_test = b.dimension_reduction(X_test, args.reduction, args.value_reduction)
         logging.info('X_train shape {},{}'.format(m, n))
@@ -71,8 +72,8 @@ def main():
             clf.fit(X_train[training], y_train_cross, lmda)
             y_pred = clf.predict(X_train[validation])
 
-            ## calculate precision, recall and fscore
-            res = precision_recall_fscore_support(y_val_cross, y_pred, average='micro')
+            ## calculate macro average precision, recall and fscore
+            res = b.get_precision_recall_fscore(y_val_cross, y_pred)
 
             ## append results
             results.append(res)
@@ -88,6 +89,7 @@ def main():
         start_time = time.time()
 
         ## split the dataset
+        random.seed(1)
         items = list(range(m))
         random.shuffle(items)
         training = items[m // 3:]
@@ -101,8 +103,8 @@ def main():
         clf.fit(X_train[training], y_val, lmda)
         y_pred = clf.predict(X_train[testing])
 
-        ## calculate and store precision, recall and fscore
-        res = precision_recall_fscore_support(y_test, y_pred, average='micro')
+        ## calculate macro average precision, recall and fscore
+        res = b.get_precision_recall_fscore(y_test, y_pred)
         logging.info(res)
         logging.info("--- %s seconds ---" % (time.time() - start_time))
         ## confusion matrix

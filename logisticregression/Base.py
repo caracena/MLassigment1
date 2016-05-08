@@ -1,9 +1,8 @@
-import os.path
 import csv, random, statistics as stat
 import numpy as np
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix
+# from sklearn.metrics import confusion_matrix
 
 class Base:
 
@@ -81,8 +80,31 @@ class Base:
         return stat.mean(precision), stat.stdev(precision), stat.mean(recall), \
                stat.stdev(recall), stat.mean(fscore), stat.stdev(fscore)
 
+    def confusion_matrix(self, y_test, y_pred):
+        list_classes = sorted(list(set(y_test)))
+        cm = np.zeros([len(list_classes),len(list_classes)], dtype=int)
+        for i in range(len(y_test)):
+            cm[list_classes.index(y_test[i]),list_classes.index(y_pred[i])] += 1
+        return cm
+
+    def get_precision_recall_fscore(self, y_test, y_pred):
+        precision, recall, fscore = [], [], []
+        cm = self.confusion_matrix(y_test, y_pred)
+        ## macro averaging
+        for i in range(cm.shape[0]):
+            t_p = cm[i,i]
+            f_p = np.sum(cm[:, i])-cm[i,i]
+            f_n = np.sum(cm[i, :])-cm[i,i]
+            pre = t_p/(t_p+f_p)
+            rec = t_p/(t_p+f_n)
+            fs = 2*pre*rec/(pre+rec)
+            precision.append(pre)
+            recall.append(rec)
+            fscore.append(fs)
+        return stat.mean(precision), stat.mean(recall), stat.mean(fscore)
+
     def plot_confusion_matrix(self, y_test, y_pred, list_classes):
-        cm = confusion_matrix(y_test, y_pred)
+        cm = self.confusion_matrix(y_test, y_pred)
         plt.figure()
         plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
         plt.title('Confusion matrix')
