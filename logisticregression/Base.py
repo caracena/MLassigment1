@@ -2,7 +2,7 @@ import csv, random, statistics as stat
 import numpy as np
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-# from sklearn.metrics import confusion_matrix
+from collections import Counter
 
 class Base:
 
@@ -128,4 +128,30 @@ class Base:
                                  horizontalalignment='center',
                                  verticalalignment='center',
                                  color=color)
+        plt.show()
+
+    def plot_histogram(self, y_train):
+        ## Make histogram of category distribution
+        counter = Counter(y_train).most_common()
+        classes = [c[0] for c in counter]
+        classes_f = [c[1] for c in counter]
+
+        # Plot histogram using matplotlib bar().
+        indexes = np.arange(len(classes)) + 0.5
+        width = 0.5
+        rec = plt.bar(indexes, classes_f, width)
+        plt.xticks(indexes + width * 0.5, classes, fontsize=15, rotation=90)
+        plt.ylabel('Frequency', fontsize=16)
+        plt.xlabel('Classes', fontsize=16)
+        plt.title('Frequency Histogram for Classes', fontsize=16)
+        plt.tight_layout()
+
+        def autolabel(rects):
+            for rect in rects:
+                height = rect.get_height()
+                plt.text(rect.get_x() + rect.get_width() / 2., height + 1,
+                         '%d' % int(height),
+                         ha='center', va='bottom', fontsize=16)
+
+        autolabel(rec)
         plt.show()

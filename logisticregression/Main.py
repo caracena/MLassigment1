@@ -10,16 +10,17 @@ def main():
     parser.add_argument("l", type=float, help="lambda parameter for regularisation [0 - Inf]", default=0.3,
                         nargs='?',const=0.3)
     parser.add_argument("p", help="process to be done (cross, test or predict)",
-                        choices=['cross', 'test', 'predict'] ,default='cross', const=0.3, nargs='?')
+                        choices=['eda','cross', 'test', 'predict'] ,default='cross', const=0.3, nargs='?')
     parser.add_argument("r", help="type of reduction to be applied",
                         choices=['pca', 'none', 'common'], default='none', const='none', nargs='?')
     parser.add_argument("--value_reduction", type = float, help="value of dimensionality reduction",
                         default=0, const=0, nargs='?')
+    parser.add_argument("--histo", help="make histogram of categories", action='store_true')
     args = parser.parse_args()
 
     ## append results to resultslogistic.log
     logging.basicConfig(filename='resultslogistic.log', level=logging.INFO)
-    logging.info('Starting Logistic Regression proccess {} with lambda {}'.format(args.l, args.p))
+    logging.info('Starting Logistic Regression proccess {} with lambda {}'.format(args.p, args.l))
 
     ## create base with files
     b = Base("../assignment1_2016S1/training_data.csv",
@@ -33,6 +34,9 @@ def main():
     X_train, y_train, X_test, test_names = b.load_data()
     logging.info("--- %s seconds ---" % (time.time() - start_time))
 
+    if args.histo:
+        b.plot_histogram(y_train)
+        return
 
     if args.r != 'none':
         ## dimensionality reduction
