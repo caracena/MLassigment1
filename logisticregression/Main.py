@@ -10,16 +10,17 @@ def main():
     parser.add_argument("l", type=float, help="lambda parameter for regularisation [0 - Inf]", default=0.3,
                         nargs='?',const=0.3)
     parser.add_argument("p", help="process to be done (cross, test or predict)",
-                        choices=['cross', 'test', 'predict'] ,default='cross', const=0.3, nargs='?')
+                        choices=['eda','cross', 'test', 'predict'] ,default='cross', const=0.3, nargs='?')
     parser.add_argument("r", help="type of reduction to be applied",
                         choices=['pca', 'none', 'common'], default='none', const='none', nargs='?')
     parser.add_argument("--value_reduction", type = float, help="value of dimensionality reduction",
                         default=0, const=0, nargs='?')
+    parser.add_argument("--histo", help="make histogram of categories", action='store_true')
     args = parser.parse_args()
 
     ## append results to resultslogistic.log
     logging.basicConfig(filename='resultslogistic.log', level=logging.INFO)
-    logging.info('Starting Logistic Regression proccess {} with lambda {}'.format(args.l, args.p))
+    logging.info('Starting Logistic Regression proccess {} with lambda {}'.format(args.p, args.l))
 
     ## create base with files
     b = Base("../assignment1_2016S1/training_data.csv",
@@ -33,12 +34,16 @@ def main():
     X_train, y_train, X_test, test_names = b.load_data()
     logging.info("--- %s seconds ---" % (time.time() - start_time))
 
+    if args.histo:
+        b.plot_histogram(y_train)
+        return
 
     if args.r != 'none':
         ## dimensionality reduction
         start_time = time.time()
         logging.info('Reduce matrix using {}'.format(args.r))
         X_train = b.dimension_reduction(X_train, args.reduction, args.value_reduction)
+        m, n = X_train.shape
         if args.p == 'predict':
             X_test = b.dimension_reduction(X_test, args.reduction, args.value_reduction)
         logging.info('X_train shape {},{}'.format(m, n))
@@ -71,8 +76,8 @@ def main():
             clf.fit(X_train[training], y_train_cross, lmda)
             y_pred = clf.predict(X_train[validation])
 
-            ## calculate precision, recall and fscore
-            res = precision_recall_fscore_support(y_val_cross, y_pred, average='micro')
+            ## calculate macro average precision, recall and fscore
+            res = b.get_precision_recall_fscore(y_val_cross, y_pred)
 
             ## append results
             results.append(res)
@@ -88,6 +93,7 @@ def main():
         start_time = time.time()
 
         ## split the dataset
+        random.seed(1)
         items = list(range(m))
         random.shuffle(items)
         training = items[m // 3:]
@@ -101,8 +107,8 @@ def main():
         clf.fit(X_train[training], y_val, lmda)
         y_pred = clf.predict(X_train[testing])
 
-        ## calculate and store precision, recall and fscore
-        res = precision_recall_fscore_support(y_test, y_pred, average='micro')
+        ## calculate macro average precision, recall and fscore
+        res = b.get_precision_recall_fscore(y_test, y_pred)
         logging.info(res)
         logging.info("--- %s seconds ---" % (time.time() - start_time))
         ## confusion matrix
