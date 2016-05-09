@@ -1,10 +1,12 @@
 import logging, time, argparse, random
+import sys
+import os.path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from algorithm.Base import Base
 from algorithm.LogisticRegression import LogisticRegression
-from sklearn.metrics import precision_recall_fscore_support
+
 
 def main():
-
     ## load positional parameters
     parser = argparse.ArgumentParser()
     parser.add_argument("l", type=float, help="lambda parameter for regularisation [0 - Inf]", default=0.3,
@@ -42,10 +44,10 @@ def main():
         ## dimensionality reduction
         start_time = time.time()
         logging.info('Reduce matrix using {}'.format(args.r))
-        X_train = b.dimension_reduction(X_train, args.reduction, args.value_reduction)
+        X_train = b.dimension_reduction(X_train, args.r, args.value_reduction)
         m, n = X_train.shape
         if args.p == 'predict':
-            X_test = b.dimension_reduction(X_test, args.reduction, args.value_reduction)
+            X_test = b.dimension_reduction(X_test, args.r, args.value_reduction)
         logging.info('X_train shape {},{}'.format(m, n))
         logging.info("--- %s seconds ---" % (time.time() - start_time))
 
