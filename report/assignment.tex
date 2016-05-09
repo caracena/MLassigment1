@@ -131,8 +131,8 @@ bindingoffset=0mm, top=20mm,bottom=20mm}
 \begin{minipage}{0.4\textwidth}
 \begin{flushleft} \large
 \emph{Authors:}\\
-\textsc{Tinju Abraham\\		
-		Claudio Aracena\\
+\textsc{Tinju Abraham - 450611748\\		
+		Claudio Aracena - 450624988\\
 		Rafael Possas} % Your name
 \end{flushleft}
 \end{minipage}
@@ -263,7 +263,7 @@ In logistic regression training, weights are set to maximize the Conditional Log
 \boldsymbol{W} \leftarrow \argmax_{W} \sum_{d \in D} \ln P(Y^d|X^d, W)
 \end{equation}
 
-To prevent overfitting, regularization can be used by penalizing large weights by changing the training objective:
+To prevent over-fitting, regularization can be used by penalizing large weights by changing the training objective:
 
 \begin{equation}
 \boldsymbol{W} \leftarrow \argmax_{W} \sum_{d \in D} \ln P(Y^d|X^d, W) - \frac{\lambda}{2}\parallel W \parallel^2 
@@ -303,6 +303,12 @@ To choose a regularization parameter lambda several values were tested in the Lo
 
 As the Table~\ref{table:3} shows there is no big difference among different regularization parameters, but the maximum is reached at 0.3, which it is the chosen value for the next experiments.
 
+\textbf{Hardware and Software Specifications}
+
+The computer where the experiments were run has the next specifications: Intel i7-6700k 8 cores 4.2Ghz 16GB RAM 512 GB SSD.
+
+The development of the project was done in the software tool PyCharm using Python 3.5.
+
 \section{Experiments and results}
 
 In this section, the experiments conducted on classification algorithms and the results are discussed. Also the metrics and evaluation procedures to evaluate the accuracy and other measures of the results of the algorithms in different experiments are illustrated.
@@ -320,6 +326,8 @@ Accuracy\ Acc\ = \frac{tp + tn}{tp + tn + fp + fn} \\
 F \dash score\ F_{1}\ = \frac{2PR}{P+R}
 \end{gather}
 
+where $tp$ is true positives, $fp$ is false positives, $tn$ is true negatives and $fn$ is false negatives.
+
 \subsection{Evaluation Procedure}
 
 In order to prevent over fitting and better train the algorithm, the dataset was divided into disjoint training and cross-validation sets as illustrated in the figure~\ref{fig:5}
@@ -327,7 +335,7 @@ In order to prevent over fitting and better train the algorithm, the dataset was
 \begin{figure}[H]
 \includegraphics[width=0.5\textwidth]{procedure}
 \centering
-\caption{Learning Procedure}
+\caption{Evaluation Procedure}
 \label{fig:5}
 \end{figure}
 
@@ -339,7 +347,7 @@ This evaluation procedure is used only in the experiment and is not called as a 
 
 \subsection{Experiments}
 
-All the experiments were done using the Cross Validation with 10 folds and the metrics precision, recall, accuracy, F1 Score and execution time were extracted as the Tables~\ref{table:1}~and~\ref{table:2} show. The tests were divided into the set with minimal dimensionality reduction (only stop words) and a set with full dimensionality reduction (pca + stop words). All the algorithms except from Logistic Regression where extracted from sklearn library for benchmarking purposes.
+All the experiments were done using the Cross Validation with 10 folds and the metrics precision, recall, accuracy, F1 Score and execution time were extracted as the Tables~\ref{table:1}~and~\ref{table:2} show. The tests were divided into the set without dimensionality reduction and a set with dimensionality reduction (PCA). All algorithms except by Logistic Regression, use the implementation from the library sklearn. Logistic Regression is implemented in the attached code.
 
 \begin{table}[H]
 \centering
