@@ -133,7 +133,7 @@ bindingoffset=0mm, top=20mm,bottom=20mm}
 \emph{Authors:}\\
 \textsc{Tinju Abraham - 450611748\\		
 		Claudio Aracena - 450624988\\
-		Rafael Possas} % Your name
+		Rafael Possas - 450645880} % Your name
 \end{flushleft}
 \end{minipage}
 ~
@@ -381,11 +381,11 @@ All the experiments were done using the Cross Validation with 10 folds and the m
 
 From experiments subsection we can observe that the best results are obtained with Logistic Regression without dimensionality reduction. This was one of the main reasons to choose Logistic Regression as the final algorithm to predict labels in the test data. 
 
-As it is described in the Methods section, Logistic Regression is an algorithm that can be implemented easily, being one of its best advantages. However, when it is used in big datasets the training time could be considerable. In our experiments this algorithm tested using 10 fold cross-validation have a execution time of around 30 minutes, and around 15 minutes longer if PCA is applied to the dataset. 
+As it is described in the Methods section, Logistic Regression is an algorithm that can be implemented easily, being one of its best advantages. However, when it is used in big datasets the training time could be considerable. In our experiments this algorithm was tested using 10 fold cross-validation had a execution time of approximated 30 minutes, and 15 minutes longer if PCA was applied to the dataset. 
 
-Some alternatives to Logistic Regression could be Multinomial Na\"{i}ve Bayes, K-Nearest Neighbour (KNN) and Gaussian Na\"{i}ve Bayes. The first one have a low execution time, but its implementation could be considered complex given the way is implemented in sklearn. A simple implementation of Multinomial Naive Bayes generates increments in execution time. The second option (KNN) shows worse results and high execution times, however it is also an algorithm of simple implementation. Lastly, Gaussian Na\"{i}ve Bayes shows the worst performance among all the options, even though its simple implementation and fast execution are its main advantages.
+Some alternatives to Logistic Regression could be Multinomial Na\"{i}ve Bayes, K-Nearest Neighbour (KNN) and Gaussian Na\"{i}ve Bayes. The first one had a low execution time and a lower performance. The second option (KNN) shows worse results and high execution times, however it is also an algorithm of simple implementation. Lastly, Gaussian Na\"{i}ve Bayes shows the worst performance among all the options, even though its simple implementation and fast execution are its main advantages.
 
-During the experiments, dimensionality reduction as pre-processing was tested. One may think this kind of techniques can help to reduce noise and help to improve the results. However, the performance and execution time of all algorithms were worse or equal after applying the pre-processing pipeline described in Methods section. Some reasons to explain this behaviour could be that the reduction of features using PCA could remove unique features for classes and trying to keep more general features, losing the capability of identifying more specific cases.    
+During the experiments, dimensionality reduction as pre-processing was tested. One may think this kind of technique can help to reduce noise and help to improve the results. However, the performance and execution time of all algorithms were worse or equal after applying the pre-processing pipeline described in the Methods section. One of the reasons for having a lower performance with PCA could be explained by the lack of relation between the latent variables found with the category of the text.   
 
 \subsubsection{Confusion Matrix}
 
@@ -400,30 +400,37 @@ In order to check where the Logistic Regression classifier is making wrong predi
 \label{fig:4}
 \end{figure}
 
-From the matrix, it is possible to observe that a big part of the instances are being classified correctly (shown in the diagonal of the confusion matrix). However, some classes are being confused such as \textit{Tools}, \textit{Business}, \textit{Communication} and \textit{Productivity}; \textit{Book and Reference}, \textit{Brain and Puzzles} and \textit{Education}; \textit{Entertainment}, \textit{Media and Video}, \textit{Music and Video} and \textit{Photography}; \textit{Transportation} and \textit{Travel and Local}. Looking into the confused categories it is possible to notice they describe similar classes of applications and probably the words (features) to represent their functionality are similar. This property of the data is one of the main reasons why the classifier can not predict with high performance for those categories.    
+From the matrix, it is possible to observe that a big part of the instances are being classified correctly (shown in the diagonal of the confusion matrix). However, some classes are being incorrectly marked more frequently than others. For instance, \textit{Travel and Local} being incorrectly classified as \textit{Transportation}, \textit{Productivity} as \textit{Tools}, \textit{Medical} as \textit{Health and Fitness}, \textit{Lifestyle} as \textit{Shopping}, \textit{Media and Video} as \textit{Photography} are few to be noted. Looking into the confused categories it is possible to notice they describe similar classes of applications and probably the words (features) to represent their functionality are similar. This property of the data is one of the main reasons why the classifier can not predict with high performance for those categories.    
 
 \section{Discussion}
 
-While doing the classification task, the strategy was to do a comparison study of performance and accuracy using the existing packages of classification and then implement the objective function. In general, the following challenges were faced during the entire process.
+While doing the classification task, the strategy was to do a comparison study of performance and metrics using the existing packages of classification and then implement the algorithm which shows the best results. In general, the following challenges were faced during the entire process.
 
-Curse of dimensionality – When the number of dimension grows, the volume of the space increases so fast that the available data becomes sparse. The complexity of many classification algorithms is exponential with respect to the number of dimensions. Some of the algorithms tried in this experiment performed really bad because of this dimensionality issue. Few algorithms which we had to drop because of poor performance are listed below
-Xgboost – Poor performance that we had to drop experimenting with the algorithm.
-GradientBoostClassifier
-Random forest 
+Firstly, the most visible one would be the curse of dimensionality. Doing natural language process would always rely in highly dimensional datasets. These kind of datasets are not only hard to visualize but also very slow to process by some machine learning algorithms. For instance, the KNN algorithm took almost 2 hours to execute due to long time needed to calculate distance between vectors in higher dimensions.
 
-Dimensionality Reduction
+Secondly, Naive Bayes methods did not perform well when compared to methods like logistic regression. This could be related to the “naive” nature of such algorithms. Assuming independence in a text might not always be a good a thing since some words (features) can be related to one another and, therefore, cannot be considered independent.
 
-
-Combining different algorithms - After a better understanding of the strengths and limitations of each method, we wanted to investigate the possibility of integrating two or more algorithms in the classifier to utilize the strengths of one method to complement the weaknesses of another. Considering the huge dataset and the computational performance, it was difficult to do more experiments to come up with a feasible solution within the limited time of the assignment task.
-
+Lastly, having only the TF-IDF values can be seen as a limitation in the feature extraction process. This can be explained by the lack of options for creating different features and, in some cases, even interpreting the text / vocabulary. By having the actual words some techniques like lemmatization,tokenization and stemming could be used to extract different features and combine them in the classification process. Moreover, combining unrelated algorithms which were well performing and giving accurate results could also yield a better result. 
 
 \section{Conclusions and future work}
 
-Few tasks that were not feasible in the limited time for the classification assignment, which we would like to try in future:
+The main objective of the present work was to predict the class labels for unlabelled data given a highly dimensional dataset. It can be said that the overall goal was achieved since that this work not only brought a real experience in machine learning but also helped to understand the underlying concepts of a real algorithm.
 
-Would combining unrelated algorithms which were well performing and giving accurate results yield a better result?
+Even though the given assignment is under a framework of a unit of study with a dataset and features assigned by the course staff, it still requires a major amount of effort to reach good levels of performance and efficiency in the algorithms. Hence, real problems could be more complex and difficult to handle but with more flexibility in the data analysis process.
 
-Which feature selection methods are high performing and scalable across different classifiers in the mentioned classification task? 
+The algorithms that were tested in the classification task are not the most complex ones. However, the results obtained in some of them led us to think that it is not required to use complex algorithms to reach a good performance. Regarding the use of complex algorithms, these could be considered for further analysis of the data and can help to answer the question if they can bring more benefits for classification tasks considering performance, execution time and complexity of implementation.      
+ 
+All in all, it is believed that the results for the classification were very good taking into the consideration the number of categories and the limitations regarding the dataset provided. 
+
+\subsection{Future Work}
+
+From the present report some ideas for future work can be extracted and are listed next:
+\begin{itemize}
+\item Flexibility of data: Have the ability to use the text from the initial dataset for training and testing could be an option to consider better way to achieve high performance.
+
+\item Flexibility of data: Have the ability to use the text from the initial dataset for training and testing could be an option to consider better way to achieve high performance.
+Complex Algorithms: As it is already mentioned, trying algorithms considered as complex such as Neural Networks, Support Vector Machines, Deep Networks, among others, could bring improvements in performance, but also more complexity to the implementation and higher execution times. 
+\end{itemize}
 
 
 \nocite{wiki:fscore}
