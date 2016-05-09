@@ -106,8 +106,8 @@ class Base:
 
     def get_precision_recall_fscore_overall(self,results):
         """
-        
-        :param results:
+
+        :param results: list of resul
         :return:
         """
         precision, recall, fscore = [], [], []
