@@ -5,4 +5,5 @@ This repo has two main folders:
 
 1. report: latex files for building the report
 
-2. classfier: python files
+2. logistic regression: python classes and functions for solving the problem
+

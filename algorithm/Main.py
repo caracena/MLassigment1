@@ -1,6 +1,6 @@
 import logging, time, argparse, random
-from logisticregression.Base import Base
-from logisticregression.LogisticRegression import LogisticRegression
+from algorithm.Base import Base
+from algorithm.LogisticRegression import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
 
 def main():
@@ -10,9 +10,9 @@ def main():
     parser.add_argument("l", type=float, help="lambda parameter for regularisation [0 - Inf]", default=0.3,
                         nargs='?',const=0.3)
     parser.add_argument("p", help="process to be done (cross, test or predict)",
-                        choices=['eda','cross', 'test', 'predict'] ,default='cross', const=0.3, nargs='?')
+                        choices=['cross', 'test', 'predict'] ,default='cross', const=0.3, nargs='?')
     parser.add_argument("r", help="type of reduction to be applied",
-                        choices=['pca', 'none', 'common'], default='none', const='none', nargs='?')
+                        choices=['none', 'pca', 'common', 'commonpca'], default='none', const='none', nargs='?')
     parser.add_argument("--value_reduction", type = float, help="value of dimensionality reduction",
                         default=0, const=0, nargs='?')
     parser.add_argument("--histo", help="make histogram of categories", action='store_true')
@@ -23,9 +23,9 @@ def main():
     logging.info('Starting Logistic Regression proccess {} with lambda {}'.format(args.p, args.l))
 
     ## create base with files
-    b = Base("../assignment1_2016S1/training_data.csv",
-             "../assignment1_2016S1/training_labels.csv",
-             "../assignment1_2016S1/test_data.csv")
+    b = Base("../input/training_data.csv",
+             "../input/training_labels.csv",
+             "../input/test_data.csv")
     clf = LogisticRegression()
 
     ## load data
@@ -84,7 +84,7 @@ def main():
             c_cross += 1
 
         ## calculate and store averaged results and duration
-        logging.info(b.get_precision_recall_fscore_overall(results, k))
+        logging.info(b.get_precision_recall_fscore_overall(results))
         logging.info("--- %s seconds ---" % (time.time() - start_time))
 
     ## Random sample for testing and analyze results
@@ -123,7 +123,7 @@ def main():
         clf.fit(X_train, y_train, lmda)
         y_pred = clf.predict(X_test)
         results = zip(test_names,y_pred)
-        b.save_data(results,'test_data.csv')
+        b.save_data(results,'../output/predicted labels.csv')
         logging.info("--- %s seconds ---" % (time.time() - start_time))
 
 

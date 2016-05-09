@@ -12,6 +12,11 @@ class Base:
         self.target_name = targetname
 
     def load_data(self):
+        """load data from files
+
+        :return: data training matrix X_train, training labels y_train, data testing matrix X_test,
+        and names used for testing
+        """
 
         X_train = self.extract_data(self.dataset_name)
         y_train = self.extract_data(self.target_name, array = False)
@@ -20,12 +25,20 @@ class Base:
         return X_train, y_train, X_test, test_names
 
     def dimension_reduction(self, X_train, option, value):
-        if option == 'common':
+        """dimensionsionality reduction application
+
+        :param X_train: data matrix
+        :param option: reduction process (common: remove columns with more than 'value' rows with values > 0
+        (considered as stopwrods), pca: apply pca to data matrix, commonpca: apply both process together)
+        :param value: value to use in process
+        :return: processed data matrix
+        """
+        if 'common' in option:
             if not value:
                 value = 500
             columns = (X_train != 0).sum(0)
             X_train = X_train[:, columns < value]
-        elif option == 'pca':
+        if 'pca' in option:
             if not value:
                 value = 0.95
             pca = PCA(n_components=value)
@@ -33,6 +46,14 @@ class Base:
         return X_train
 
     def extract_data(self,filename, sort= True, array = True, names = False):
+        """Extract data from files
+
+        :param filename: path to file to extract
+        :param sort: if it is true, sort the data according to first column (names of mobile applications)
+        :param array: if it is true, return a list of second columns value (use for extract labels)
+        :param names: if it is true, extract data matrix and first colummn (use for testing)
+        :return: return data according parameters
+        """
         content = []
         with open(filename) as f:
             reader = csv.reader(f)
@@ -55,12 +76,24 @@ class Base:
 
 
     def save_data(self,content, filename):
+        """Save content in path 'filename'
+
+        :param content: content to save
+        :param filename: path to save a file
+        :return:
+        """
         with open(filename, 'w') as csvfile:
             writer = csv.writer(csvfile)
             for row in content:
                 writer.writerow(row)
 
     def cross_validation(self,k, m):
+        """Yield cross validation indexes
+
+        :param k: numbers of folds to use
+        :param m: number of instances
+        :return: training and validation indexes
+        """
         items = list(range(m))
         random.shuffle(items)
         slices = [items[i::k] for i in range(k)]
@@ -71,7 +104,12 @@ class Base:
                         for item in s]
             yield training, validation
 
-    def get_precision_recall_fscore_overall(self,results, k):
+    def get_precision_recall_fscore_overall(self,results):
+        """
+        
+        :param results:
+        :return:
+        """
         precision, recall, fscore = [], [], []
         for res in results:
             precision.append(res[0])

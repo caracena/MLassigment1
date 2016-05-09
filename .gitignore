@@ -12,3 +12,4 @@ assignment1_2016S1.zip
 *.synctex.gz
 .DS_Store
 test_data.csv
+input/*
