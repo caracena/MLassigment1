@@ -1,7 +1,6 @@
 import logging, time, argparse, random
 from algorithm.Base import Base
 from algorithm.LogisticRegression import LogisticRegression
-from sklearn.metrics import precision_recall_fscore_support
 
 def main():
 

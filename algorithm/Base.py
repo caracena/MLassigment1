@@ -105,10 +105,10 @@ class Base:
             yield training, validation
 
     def get_precision_recall_fscore_overall(self,results):
-        """
+        """Get overall results for a list of results
 
-        :param results: list of resul
-        :return:
+        :param results: list of results
+        :return: average and standard deviation of metrics
         """
         precision, recall, fscore = [], [], []
         for res in results:
