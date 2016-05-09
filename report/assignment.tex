@@ -284,11 +284,10 @@ To seize the availability of multiple cores in modern computers, the optimizatio
 \textbf{Regularization} 
 
 One technique that is often used to control the over-fitting phenomenon in such cases is that of regularization, which involves adding a penalty term to the cost function in order to discourage the coefficients from reaching large values~\cite{bishop2007pattern}.
-To choose a regularization parameter lambda several values were tested in the Logistic Regression classifier. In the table~\ref{table:3} the resulting F-score values when a 10-fold cross-validation process for all the data with several values of lambda are showed.
+To choose a regularization parameter lambda several values were tested in the Logistic Regression classifier. In the Table~\ref{table:3} the resulting F-score values when a 10-fold cross-validation process for all the data with several values of lambda are showed.
 
 \begin{table}[H]
 \centering
-\label{table:3}
 \begin{tabular}{|c|c|}
 \hline
 \textbf{\begin{tabular}[c]{@{}c@{}}Regularization \\ parameter $\lambda$\end{tabular}} & \textbf{F-score} \\ \hline
@@ -299,6 +298,7 @@ To choose a regularization parameter lambda several values were tested in the Lo
 1 & 65.4\% \\ \hline
 \end{tabular}
 \caption{F-score results for several regularization paramters ($\lambda$)}
+\label{table:3}
 \end{table} 
 
 As the Table~\ref{table:3} shows there is no big difference among different regularization parameters, but the maximum is reached at 0.3, which it is the chosen value for the next experiments.
@@ -343,7 +343,6 @@ All the experiments were done using the Cross Validation with 10 folds and the m
 
 \begin{table}[H]
 \centering
-\label{table:1}
 \begin{tabular}{|l|c|c|c|c|c|}
 \hline
 \multicolumn{1}{|c|}{\textbf{Algorithm}} & \textbf{Precision / STD (\%)} & \textbf{Recall / STD (\%)} & \textbf{F-Score / STD (\%)} & \textbf{Accuracy (\%)} & \textbf{Time (s)} \\ \hline
@@ -353,11 +352,11 @@ All the experiments were done using the Cross Validation with 10 folds and the m
 \textbf{KNN} & 33.57 $\pm$ 1.67 & 55.46 $\pm$ 2.47 & 38.07 $\pm$ 1.95 & 45.23 & 7091 \\ \hline
 \end{tabular}
 \caption{Metrics for 10 fold Cross Validation without PCA}
+\label{table:1}
 \end{table}
 
 \begin{table}[H]
 \centering
-\label{table:2}
 \begin{tabular}{|l|c|c|c|c|c|}
 \hline
 \multicolumn{1}{|c|}{\textbf{Algorithm}} & \textbf{Precision / STD (\%)} & \textbf{Recall / STD (\%)} & \textbf{F-Score / STD (\%)} & \textbf{Accuracy (\%)} & \textbf{Time (s)} \\ \hline
@@ -367,6 +366,7 @@ All the experiments were done using the Cross Validation with 10 folds and the m
 \textbf{KNN} & 39.68 $\pm$ 1.03 & 56.00 $\pm$ 1.34 & 43.57 $\pm$ 0.82 & 44.38 & 2012 \\ \hline
 \end{tabular}
 \caption{Metrics for 10 fold Cross Validation with PCA}
+\label{table:2}
 \end{table}
 
 \subsection{Extensive Analysis}

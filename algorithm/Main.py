@@ -10,7 +10,7 @@ def main():
     parser.add_argument("l", type=float, help="lambda parameter for regularisation [0 - Inf]", default=0.3,
                         nargs='?',const=0.3)
     parser.add_argument("p", help="process to be done (cross, test or predict)",
-                        choices=['cross', 'test', 'predict'] ,default='cross', const=0.3, nargs='?')
+                        choices=['cross', 'test', 'predict'] ,default='predict', const=0.3, nargs='?')
     parser.add_argument("r", help="type of reduction to be applied",
                         choices=['none', 'pca', 'common', 'commonpca'], default='none', const='none', nargs='?')
     parser.add_argument("--value_reduction", type = float, help="value of dimensionality reduction",
@@ -123,7 +123,7 @@ def main():
         clf.fit(X_train, y_train, lmda)
         y_pred = clf.predict(X_test)
         results = zip(test_names,y_pred)
-        b.save_data(results,'../output/predicted labels.csv')
+        b.save_data(results,'../output/predicted_labels.csv')
         logging.info("--- %s seconds ---" % (time.time() - start_time))
 
 
