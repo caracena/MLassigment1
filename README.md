@@ -16,7 +16,7 @@ This project has 4 main folders:
 In order to run the code you go to the algorithm folder and run
 
 ```bash
-PYHTHONPATH=/path/to/code python Main.py
+PYHTHONPATH=/path/to/algorithm python Main.py
 ```
 This will run the default mode of the project. This mode use 0.3 as regularization
 parameter, predict the labels for the test data and save the results in output folder
@@ -25,7 +25,7 @@ parameter, predict the labels for the test data and save the results in output f
 If you want to use other modes you can run the project with parameters:
 
  ```bash
-PYHTHONPATH=/path/to/code python Main.py l p r --value_reduction x --histo
+PYHTHONPATH=/path/to/algorithm python Main.py l p r --value_reduction x --histo
  ```
 - l is the regularization value
 - p is the process to do (cross: run the 10-fold
